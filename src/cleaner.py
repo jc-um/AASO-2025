@@ -24,6 +24,8 @@ class Cleaner():
 
         for i in range(5, c, 2):
             for j in range(0, r):
+                print(initial_data)
+                print(self._df.iloc[j, i])
                 initial_x = initial_data[i-1]
                 initial_y = initial_data[i]
 
@@ -33,4 +35,11 @@ class Cleaner():
                 displacement_x = curr_x - initial_x
                 displacement_y = curr_y - initial_y
                 
-                        
+                self._df.iloc[j, i-1] = displacement_x
+                self._df.iloc[j, i] = displacement_y
+        
+        if output_path == "":
+            ext = self._path.rfind(".")
+            output_path = self._path[:ext] + "_cleaned.csv"
+            print(f"Saved to {output_path}")
+        self._df.to_csv(output_path, index=False, header=False)            
