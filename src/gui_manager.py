@@ -12,4 +12,4 @@ class GuiManager():
         pass
     def create_fig():
         pass
-    
+    def open_file
