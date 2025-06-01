@@ -8,7 +8,7 @@ class Cleaner():
     def __init__(self, f_path):
         self._path = f_path
         self._df = pd.read_csv(self._path, skiprows=4, header=None, dtype=str)
-    
+        self._df.to_csv("initial.csv", index=False)
     def clean_data(self, output_path="", max_magnitude=100):
         self._df[0] = pd.to_datetime(self._df[0], errors="coerce")
 
@@ -26,24 +26,24 @@ class Cleaner():
         self._df[n_col] = self._df[n_col].interpolate(method="linear")
         #self._df = self._df.reset_index() 
 
-        self._df = self._df.loc[:, 5:].mul(0.6)
+        self._df.iloc[:, 5:] *= 0.6
         initial_data = self._df.iloc[0, 5:]
-
+        
         s = self._df.shape
-        r = s[1]
-        c = s[0]
+        r = s[0]
+        c = s[1]
+        print(s)
+        self._df.to_csv("clean.csv", index=False)     
+        for i in range(0, r):
+            for j in range(5, c):
+                
+                initial = initial_data[j]
 
-        for i in range(5, c):
-            for j in range(0, r):
-                print(initial_data)
-                print(self._df.iloc[j, i])
-                initial = initial_data[i]
-
-                curr = self._df.iloc[j, i]
+                curr = self._df.iloc[i, j]
 
                 displacement = curr - initial
                 
-                self._df.iloc[j, i] = displacement
+                self._df.iloc[i, j] = displacement
         
         if output_path == "":
             ext = self._path.rfind(".")
