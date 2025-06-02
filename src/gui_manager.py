@@ -9,15 +9,26 @@ import numpy
 
 class GuiManager():
     def plot_fig(self, figure):
-        pass
-    def create_fig(self):
-        pass
+        for widget in self.pframe.winfo_children():
+            widget.destroy()
+
+        canvas = FigureCanvasTkAgg(figure, master=self.pframe)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    def create_fig(self, t, m):
+        fig, ax = plt.subplots(figsize=(4, 8))
+        ax.plot(t, m, label="Seismogram", linestyle="-", linewidth=0.5)
+        ax.set_xlabel("Time [minutes]")
+        ax.set_ylabel("Magnitude of Displacement")
+        ax.set_title("Seismogram")
+        ax.grid(True)
+        return fig
     def open_file(self):
         f_path = filedialog.askopenfile(title="Select CSV to open", filetypes=[("All Files", "*"), ("CSV Files", ".csv")])
         if f_path:
             times, magnitude = self.process_file(f_path)
-            if times != None and magnitude != None:
-                fig = self.create_fig()
+            if times is not None  and magnitude is not None:
+                fig = self.create_fig(times, magnitude)
                 self.plot_fig(fig)
     
     def process_file(self, path):
@@ -25,24 +36,23 @@ class GuiManager():
         df[0] = pd.to_datetime(df[0], errors="coerce")
         n_col = df.columns[1:]
         df[n_col] = df[n_col].apply(pd.to_numeric, errors='coerce')
-        shape = df.shape
-        r = shape[0]
+
         
         
-        df["TIME_DIFF"] = ((df[0] - df.iloc[0, 0]).dt.total_seconds()) / 60
-        c = df.columns.get_loc("TIME_DIFF")
-        
-        print(df["TIME_DIFF"])
-        
-        df.iloc[:, 5:c]= df.iloc[:, 5:c].apply(lambda  col : numpy.linalg.norm(col), axis=0)
-                                                                                                                 
-        df.to_csv("gui_test.csv", index=False, header=True)
-        return df["TIME_DIFF"], df.iloc[:, 5:c]
+        timestamps = ((df[0] - df.iloc[0, 0]).dt.total_seconds()) / 60
+        magnitude = df.iloc[:, 5:].abs()
+  
+        if timestamps.empty and magnitude.empty:
+            return None, None
+
+        return timestamps, magnitude
 
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Sensor Report Replica")
         self.root.geometry("800x500")
+        self.pframe = tk.Frame(self.root)
+        self.pframe.pack(fill=tk.BOTH, expand=True)
 
         self._button = tk.Button(self.root, text="Open CSV", command=self.open_file).pack(pady=10)
 

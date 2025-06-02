@@ -33,6 +33,7 @@ class Cleaner():
         r = s[0]
         c = s[1]
         print(s)
+        
         self._df.to_csv("clean.csv", index=False)     
         for i in range(0, r):
             for j in range(5, c):
