@@ -5,8 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy
+import sys 
 
-
+if len(sys.argv) != 2: 
+    raise RuntimeError("(PROGAM FAILURE) Must pass (2) arguments")
 class GuiManager():
     def plot_fig(self, figure):
         for widget in self.pframe.winfo_children():
@@ -37,11 +39,20 @@ class GuiManager():
         n_col = df.columns[1:]
         df[n_col] = df[n_col].apply(pd.to_numeric, errors='coerce')
 
-        
+        data = []
+        sensor_count = 0
+        if len(sys.argv[1]) == "all":
+            data = df.iloc[:, 5:]
+            sensor_count = df.shape[1] - 5
+        if sys.argv[1].isalnum():
+            sensor_count = int(sys.argv[1])
+            data = df.iloc[:, 5:(sensor_count+5)]
         
         timestamps = ((df[0] - df.iloc[0, 0]).dt.total_seconds()) / 60
-        magnitude = df.iloc[:, 5:].abs()
-  
+        for i in range(0, df.shape[0]):
+            for j in range(5, sensor_count+5):
+                magnitude                 
+        
         if timestamps.empty and magnitude.empty:
             return None, None
 
